@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<RunSettings>
+  <DataCollectionRunSettings>
+    <DataCollectors>
+      <DataCollector friendlyName="XPlat code coverage">
+        <Configuration>
+          <Format>opencover,cobertura</Format>
+          <!--
+            Exclude all unit-test assemblies from coverage (they shouldn't count
+            toward themselves) and any code marked with the standard generated /
+            compiler-emitted attributes. The latter is what skips the
+            Kiota-generated client under Spydersoft.Audit.Client/Generated/ — every
+            generated type carries [GeneratedCode("Kiota", "1.0.0")].
+          -->
+          <Exclude>[*.UnitTests]*</Exclude>
+          <ExcludeByAttribute>Obsolete,GeneratedCodeAttribute,CompilerGeneratedAttribute</ExcludeByAttribute>
+          <SingleHit>false</SingleHit>
+          <UseSourceLink>false</UseSourceLink>
+          <IncludeTestAssembly>false</IncludeTestAssembly>
+          <SkipAutoProps>false</SkipAutoProps>
+          <DeterministicReport>false</DeterministicReport>
+        </Configuration>
+      </DataCollector>
+    </DataCollectors>
+  </DataCollectionRunSettings>
+</RunSettings>

@@ -4,6 +4,7 @@
 		<TargetFramework>net10.0</TargetFramework>
 		<IsPackable>false</IsPackable>
 		<IsTestProject>true</IsTestProject>
+		<RunSettingsFilePath>$(MSBuildThisFileDirectory)..\coverlet.runsettings</RunSettingsFilePath>
 	</PropertyGroup>
 
 	<ItemGroup>
