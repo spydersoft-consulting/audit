@@ -54,7 +54,7 @@ extends:
       - "8.x"
       - "9.x"
     gitVersionVersion: "6.0.x"
-    nugetConfigPath: $(Build.SourcesDirectory)/src/nuget.config
+    nugetConfigPath: $(Build.SourcesDirectory)/nuget.config
 
     executeSonar: false
     useSonarCloud: false
