@@ -49,8 +49,9 @@ extends:
     publishToNuget: false
     # Service connection for the spydersoft GitHub Packages feed. Required so
     # NuGetAuthenticate adds credentials for Spydersoft.Messaging.* and
-    # Spydersoft.Platform.Hosting during dotnet restore.
-    externalFeedCredentials: SpydersoftGithub
+    # Spydersoft.Platform.Hosting during dotnet restore. (build-net-library
+    # uses `externalNugetFeed`; build-api uses `externalFeedCredentials`.)
+    externalNugetFeed: SpydersoftGithub
 
     dotnetSdk: "10.0.x"
     additionalNetVersions:
