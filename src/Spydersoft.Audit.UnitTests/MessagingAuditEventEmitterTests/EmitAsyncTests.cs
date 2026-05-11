@@ -47,10 +47,12 @@ internal class EmitAsyncTests
             new AuditRecord { Source = "test-app", EventType = "EFCore", EntityType = "B", Action = "Insert" },
         };
 
-        // First call throws; second succeeds.
+        // First call throws; second succeeds. ThrowsAsync (not Throws) — the method
+        // is async, so the simulated failure should surface via the returned Task,
+        // matching real-world failure behaviour and silencing NS5003.
         _publisher
             .PublishAsync("audit.events", records[0], Arg.Any<CancellationToken>())
-            .Throws(new InvalidOperationException("simulated transport failure"));
+            .ThrowsAsync(new InvalidOperationException("simulated transport failure"));
 
         Assert.DoesNotThrowAsync(async () => await _emitter.EmitAsync(records));
 
@@ -66,7 +68,7 @@ internal class EmitAsyncTests
 
         _publisher
             .PublishAsync(Arg.Any<string>(), Arg.Any<AuditRecord>(), Arg.Any<CancellationToken>())
-            .Throws(new OperationCanceledException(cts.Token));
+            .ThrowsAsync(new OperationCanceledException(cts.Token));
 
         Assert.ThrowsAsync<OperationCanceledException>(
             async () => await _emitter.EmitAsync(
