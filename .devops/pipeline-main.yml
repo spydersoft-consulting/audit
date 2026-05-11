@@ -1,13 +1,23 @@
+## Build Pipeline — Spydersoft.Audit and Spydersoft.Audit.Client NuGet packages
+##
+## Triggers only on feature branches and tags. main pushes and PRs go through
+## pipeline-sonar.yml; this pipeline exists solely to pack and publish the
+## NuGet artefacts.
+
 trigger:
   tags:
     include:
       - "*"
   branches:
     include:
-      - main
       - feature/*
-pr:
-  - main
+  paths:
+    exclude:
+      - README.md
+      - docs/*
+      - scripts/*
+
+pr: none
 
 resources:
   repositories:
@@ -24,18 +34,13 @@ extends:
   parameters:
     projectsToBuild: |
       src/**/*.csproj
-    projectsToPack: "**/*.csproj;!**/*.UnitTests.csproj;!**/*.AppHost.csproj;!**/Spydersoft.AuditProcessor.csproj;!**/Spydersoft.AuditApi.csproj"
+    projectsToPack: "**/*.csproj;!**/*.UnitTests.csproj;!**/*.AppHost.csproj;!**/Spydersoft.AuditProcessor.csproj;!**/Spydersoft.AuditApi.csproj;!**/Spydersoft.AuditSeeder.csproj"
     executeTests: true
     testProjects: |
       src/**/*.UnitTests.csproj
     externalPublishUrl: $(nuget-feed-url)
     externalPublishApiKey: $(nuget-feed-api-key)
-    ${{ if or(eq(variables['Build.Reason'], 'PullRequest'), eq(variables['Build.SourceBranchName'], 'main')) }}:
-      publishToNuget: false
-      executeSonar: true
-    ${{ else }}:
-      publishToNuget: true
-      executeSonar: false
+    publishToNuget: true
 
     dotnetSdk: "10.0.x"
     additionalNetVersions:
@@ -44,12 +49,5 @@ extends:
     gitVersionVersion: "6.0.x"
     nugetConfigPath: $(Build.SourcesDirectory)/src/nuget.config
 
-    useSonarCloud: true
-    sonarEndpointName: sonarcloud-spydersoft
-    sonarProjectKey: spydersoft_audit
-    sonarProjectName: Spydersoft.Audit
-    sonarExtraProperties: |
-      sonar.projectKey=spydersoft_audit
-      sonar.test.inclusions=**/*.UnitTests/**
-      sonar.coverage.exclusions=**/*.UnitTests/**,**/*.AppHost/**
-      sonar.scanner.scanAll=false
+    executeSonar: false
+    useSonarCloud: false
