@@ -71,7 +71,7 @@ public sealed class AuditQueryService
         return sources;
     }
 
-    private static FilterDefinition<AuditEventDocument> BuildFilter(AuditQuery query)
+    internal static FilterDefinition<AuditEventDocument> BuildFilter(AuditQuery query)
     {
         var b = Builders<AuditEventDocument>.Filter;
         var filters = new List<FilterDefinition<AuditEventDocument>>();
