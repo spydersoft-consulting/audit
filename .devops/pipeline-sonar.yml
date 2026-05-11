@@ -47,6 +47,10 @@ extends:
     testProjects: |
       src/**/*.UnitTests.csproj
     publishToNuget: false
+    # Service connection for the spydersoft GitHub Packages feed. Required so
+    # NuGetAuthenticate adds credentials for Spydersoft.Messaging.* and
+    # Spydersoft.Platform.Hosting during dotnet restore.
+    externalFeedCredentials: SpydersoftGithub
 
     dotnetSdk: "10.0.x"
     additionalNetVersions:

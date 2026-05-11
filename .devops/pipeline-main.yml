@@ -40,6 +40,11 @@ extends:
       src/**/*.UnitTests.csproj
     externalPublishUrl: $(nuget-feed-url)
     externalPublishApiKey: $(nuget-feed-api-key)
+    # Service connection for the spydersoft GitHub Packages feed. Required so
+    # NuGetAuthenticate adds credentials for the Spydersoft.Messaging.* and
+    # Spydersoft.Platform.Hosting packages referenced by Spydersoft.Audit and
+    # the AppHost during dotnet restore.
+    externalFeedCredentials: SpydersoftGithub
     publishToNuget: true
 
     dotnetSdk: "10.0.x"
