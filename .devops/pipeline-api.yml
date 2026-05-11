@@ -13,7 +13,7 @@ resources:
     - repository: helmfileconfig
       type: github
       endpoint: spydersoft-gh
-      name: spyder007/platform-helm-config
+      name: spydersoft-consulting/platform-helm-config
 
 trigger:
   tags:
@@ -45,7 +45,6 @@ extends:
     imageTagVariableName: audit_api
     helmfileRepoName: helmfileconfig
     externalFeedCredentials: SpydersoftGithub
-    nugetConfigPath: $(Build.SourcesDirectory)/src/nuget.config
 
     updateHelmConfig: true
     buildAndPublishDockerImage: true
