@@ -1,0 +1,14 @@
+<Project>
+	<PropertyGroup>
+		<!-- Common Properties -->
+		<Nullable>enable</Nullable>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<LangVersion>latest</LangVersion>
+
+		<!-- Package Metadata -->
+		<Authors>Matt Gerega</Authors>
+		<Company>Spydersoft Consulting</Company>
+		<RepositoryUrl>https://github.com/spydersoft-consulting/audit</RepositoryUrl>
+		<PackageLicenseExpression>MIT</PackageLicenseExpression>
+	</PropertyGroup>
+</Project>

@@ -1,0 +1,59 @@
+<Project>
+	<PropertyGroup>
+		<ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<!-- Spydersoft Platform -->
+		<PackageVersion Include="Spydersoft.Messaging" Version="3.0.0" />
+		<PackageVersion Include="Spydersoft.Messaging.RabbitMQ" Version="3.0.0" />
+		<PackageVersion Include="Spydersoft.Platform.Hosting" Version="3.0.0" />
+
+		<!-- Microsoft Extensions -->
+		<PackageVersion Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.7" />
+		<PackageVersion Include="Microsoft.Extensions.Hosting.Abstractions" Version="10.0.7" />
+		<PackageVersion Include="Microsoft.Extensions.Hosting" Version="10.0.7" />
+		<PackageVersion Include="Microsoft.Extensions.Options" Version="10.0.7" />
+		<PackageVersion Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="10.0.7" />
+		<PackageVersion Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.7" />
+		<PackageVersion Include="Microsoft.Extensions.Http" Version="10.0.7" />
+		<PackageVersion Include="Microsoft.Extensions.Configuration.Binder" Version="10.0.7" />
+		<PackageVersion Include="Microsoft.Extensions.DependencyInjection" Version="10.0.7" />
+
+		<!-- ASP.NET Core (framework-conditional) -->
+		<PackageVersion Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.26" Condition="'$(TargetFramework)' == 'net8.0'" />
+		<PackageVersion Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="9.0.15" Condition="'$(TargetFramework)' == 'net9.0'" />
+		<PackageVersion Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.7" Condition="'$(TargetFramework)' == 'net10.0'" />
+
+		<PackageVersion Include="Microsoft.AspNetCore.Mvc.Testing" Version="10.0.7" />
+		<PackageVersion Include="Microsoft.AspNetCore.OpenApi" Version="10.0.7" />
+
+		<!-- Kiota runtime — used by the generated audit-client. -->
+		<PackageVersion Include="Microsoft.Kiota.Abstractions" Version="1.22.2" />
+		<PackageVersion Include="Microsoft.Kiota.Http.HttpClientLibrary" Version="1.22.2" />
+		<PackageVersion Include="Microsoft.Kiota.Serialization.Json" Version="1.22.2" />
+		<PackageVersion Include="Microsoft.Kiota.Serialization.Form" Version="1.22.2" />
+		<PackageVersion Include="Microsoft.Kiota.Serialization.Text" Version="1.22.2" />
+		<PackageVersion Include="Microsoft.Kiota.Serialization.Multipart" Version="1.22.2" />
+
+		<!-- Audit.NET -->
+		<PackageVersion Include="Audit.NET" Version="32.1.0" />
+
+		<!-- MongoDB -->
+		<PackageVersion Include="MongoDB.Driver" Version="3.5.0" />
+
+		<!-- Aspire -->
+		<PackageVersion Include="Aspire.Hosting.AppHost" Version="9.5.0" />
+		<PackageVersion Include="Aspire.Hosting.RabbitMQ" Version="9.5.0" />
+		<PackageVersion Include="Aspire.Hosting.MongoDB" Version="9.5.0" />
+
+		<!-- Test -->
+		<PackageVersion Include="coverlet.collector" Version="10.0.0" />
+		<PackageVersion Include="Microsoft.NET.Test.Sdk" Version="18.5.1" />
+		<PackageVersion Include="NUnit" Version="4.5.1" />
+		<PackageVersion Include="NUnit.Analyzers" Version="4.13.0" />
+		<PackageVersion Include="NUnit3TestAdapter" Version="6.2.0" />
+		<PackageVersion Include="NSubstitute" Version="5.3.0" />
+		<PackageVersion Include="NSubstitute.Analyzers.CSharp" Version="1.0.17" />
+	</ItemGroup>
+</Project>

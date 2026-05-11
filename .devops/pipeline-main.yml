@@ -1,0 +1,55 @@
+trigger:
+  tags:
+    include:
+      - "*"
+  branches:
+    include:
+      - main
+      - feature/*
+pr:
+  - main
+
+resources:
+  repositories:
+    - repository: templates
+      type: github
+      endpoint: spydersoft-gh
+      name: spydersoft-consulting/azure-devops-templates
+
+variables:
+  - group: nuget-spydersoft-github
+
+extends:
+  template: pipelines/build-net-library/v1.yml@templates
+  parameters:
+    projectsToBuild: |
+      src/**/*.csproj
+    projectsToPack: "**/*.csproj;!**/*.UnitTests.csproj;!**/*.AppHost.csproj;!**/Spydersoft.AuditProcessor.csproj;!**/Spydersoft.AuditApi.csproj"
+    executeTests: true
+    testProjects: |
+      src/**/*.UnitTests.csproj
+    externalPublishUrl: $(nuget-feed-url)
+    externalPublishApiKey: $(nuget-feed-api-key)
+    ${{ if or(eq(variables['Build.Reason'], 'PullRequest'), eq(variables['Build.SourceBranchName'], 'main')) }}:
+      publishToNuget: false
+      executeSonar: true
+    ${{ else }}:
+      publishToNuget: true
+      executeSonar: false
+
+    dotnetSdk: "10.0.x"
+    additionalNetVersions:
+      - "8.x"
+      - "9.x"
+    gitVersionVersion: "6.0.x"
+    nugetConfigPath: $(Build.SourcesDirectory)/src/nuget.config
+
+    useSonarCloud: true
+    sonarEndpointName: sonarcloud-spydersoft
+    sonarProjectKey: spydersoft_audit
+    sonarProjectName: Spydersoft.Audit
+    sonarExtraProperties: |
+      sonar.projectKey=spydersoft_audit
+      sonar.test.inclusions=**/*.UnitTests/**
+      sonar.coverage.exclusions=**/*.UnitTests/**,**/*.AppHost/**
+      sonar.scanner.scanAll=false
