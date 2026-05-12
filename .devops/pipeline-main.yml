@@ -1,0 +1,60 @@
+## Build Pipeline — Spydersoft.Audit and Spydersoft.Audit.Client NuGet packages
+##
+## Triggers only on feature branches and tags. main pushes and PRs go through
+## pipeline-sonar.yml; this pipeline exists solely to pack and publish the
+## NuGet artefacts.
+
+trigger:
+  tags:
+    include:
+      - "*"
+  branches:
+    include:
+      - feature/*
+  paths:
+    exclude:
+      - README.md
+      - docs/*
+      - scripts/*
+
+pr: none
+
+resources:
+  repositories:
+    - repository: templates
+      type: github
+      endpoint: spydersoft-gh
+      name: spydersoft-consulting/azure-devops-templates
+
+variables:
+  - group: nuget-spydersoft-github
+
+extends:
+  template: pipelines/build-net-library/v1.yml@templates
+  parameters:
+    projectsToBuild: |
+      src/**/*.csproj
+    projectsToPack: "**/*.csproj;!**/*.UnitTests.csproj;!**/*.AppHost.csproj;!**/Spydersoft.AuditProcessor.csproj;!**/Spydersoft.AuditApi.csproj;!**/Spydersoft.AuditSeeder.csproj"
+    executeTests: true
+    testProjects: |
+      src/**/*.UnitTests.csproj
+    externalPublishUrl: $(nuget-feed-url)
+    externalPublishApiKey: $(nuget-feed-api-key)
+    # Service connection for the spydersoft GitHub Packages feed. Required so
+    # NuGetAuthenticate adds credentials for the Spydersoft.Messaging.* and
+    # Spydersoft.Platform.Hosting packages referenced by Spydersoft.Audit and
+    # the AppHost during dotnet restore. (build-net-library uses
+    # `externalNugetFeed`; build-api uses `externalFeedCredentials`. Same task,
+    # different param names.)
+    externalNugetFeed: SpydersoftGithub
+    publishToNuget: true
+
+    dotnetSdk: "10.0.x"
+    additionalNetVersions:
+      - "8.x"
+      - "9.x"
+    gitVersionVersion: "6.0.x"
+    nugetConfigPath: $(Build.SourcesDirectory)/nuget.config
+
+    executeSonar: false
+    useSonarCloud: false

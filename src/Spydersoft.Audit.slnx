@@ -1,0 +1,24 @@
+<Solution>
+  <Folder Name="/Library/">
+    <Project Path="Spydersoft.Audit/Spydersoft.Audit.csproj" />
+    <Project Path="Spydersoft.Audit.UnitTests/Spydersoft.Audit.UnitTests.csproj" />
+  </Folder>
+  <Folder Name="/Client/">
+    <Project Path="Spydersoft.Audit.Client/Spydersoft.Audit.Client.csproj" />
+    <Project Path="Spydersoft.Audit.Client.UnitTests/Spydersoft.Audit.Client.UnitTests.csproj" />
+  </Folder>
+  <Folder Name="/Processor/">
+    <Project Path="Spydersoft.AuditProcessor/Spydersoft.AuditProcessor.csproj" />
+    <Project Path="Spydersoft.AuditProcessor.UnitTests/Spydersoft.AuditProcessor.UnitTests.csproj" />
+  </Folder>
+  <Folder Name="/Api/">
+    <Project Path="Spydersoft.AuditApi/Spydersoft.AuditApi.csproj" />
+    <Project Path="Spydersoft.AuditApi.UnitTests/Spydersoft.AuditApi.UnitTests.csproj" />
+  </Folder>
+  <Folder Name="/Seeder/">
+    <Project Path="Spydersoft.AuditSeeder/Spydersoft.AuditSeeder.csproj" />
+  </Folder>
+  <Folder Name="/AppHost/">
+    <Project Path="Spydersoft.Audit.AppHost/Spydersoft.Audit.AppHost.csproj" />
+  </Folder>
+</Solution>

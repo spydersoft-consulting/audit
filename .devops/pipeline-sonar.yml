@@ -1,0 +1,74 @@
+## Sonar Pipeline — single SonarCloud scan across every C# project in the repo
+##
+## Why a separate pipeline:
+##   - The library / processor / api pipelines run independently and would all
+##     publish to the same SonarCloud project key, overwriting each other's
+##     analysis. SonarCloud doesn't merge concurrent analyses; the last one wins.
+##   - Centralising the scan here gives one dashboard for the whole repo and a
+##     single source of coverage truth.
+##
+## Triggers on PR validation against main, plus pushes to main for trend
+## tracking. Feature branches and tags don't run sonar — they go through the
+## library / processor / api pipelines.
+
+trigger:
+  branches:
+    include:
+      - main
+  paths:
+    exclude:
+      - README.md
+      - docs/*
+      - scripts/*
+
+pr:
+  - main
+
+resources:
+  repositories:
+    - repository: templates
+      type: github
+      endpoint: spydersoft-gh
+      name: spydersoft-consulting/azure-devops-templates
+
+variables:
+  - group: nuget-spydersoft-github
+
+extends:
+  template: pipelines/build-net-library/v1.yml@templates
+  parameters:
+    projectsToBuild: |
+      src/**/*.csproj
+    # No NuGets are published from this pipeline — the library pipeline owns
+    # that. projectsToPack here is just to satisfy the template; nothing
+    # actually gets packed because publishToNuget is false.
+    projectsToPack: ""
+    executeTests: true
+    testProjects: |
+      src/**/*.UnitTests.csproj
+    publishToNuget: false
+    # Service connection for the spydersoft GitHub Packages feed. Required so
+    # NuGetAuthenticate adds credentials for Spydersoft.Messaging.* and
+    # Spydersoft.Platform.Hosting during dotnet restore. (build-net-library
+    # uses `externalNugetFeed`; build-api uses `externalFeedCredentials`.)
+    externalNugetFeed: SpydersoftGithub
+
+    dotnetSdk: "10.0.x"
+    additionalNetVersions:
+      - "8.x"
+      - "9.x"
+    gitVersionVersion: "6.0.x"
+    nugetConfigPath: $(Build.SourcesDirectory)/nuget.config
+
+    executeSonar: true
+    useSonarCloud: true
+    sonarCloudOrganization: spydersoft-consulting
+    sonarEndpointName: sonarcloud-spydersoft
+    sonarProjectKey: spydersoft-consulting_audit
+    sonarProjectName: Spydersoft.Audit
+    sonarExtraProperties: |
+      sonar.projectKey=spydersoft-consulting_audit
+      sonar.test.inclusions=**/*.UnitTests/**
+      sonar.coverage.exclusions=**/*.UnitTests/**,**/*.AppHost/**,**/Generated/**
+      sonar.exclusions=**/Generated/**
+      sonar.scanner.scanAll=false

@@ -1,0 +1,56 @@
+## Build Pipeline — Spydersoft.AuditApi service image
+##
+## Triggers only on feature branches and tags. main pushes and PRs go through
+## pipeline-sonar.yml; this pipeline exists solely to build the read-API image,
+## push it to ghcr.io, and bump the audit_api tag in platform-helm-config.
+
+resources:
+  repositories:
+    - repository: templates
+      type: github
+      endpoint: spydersoft-gh
+      name: spydersoft-consulting/azure-devops-templates
+    - repository: helmfileconfig
+      type: github
+      endpoint: spydersoft-gh
+      name: spydersoft-consulting/platform-helm-config
+
+trigger:
+  tags:
+    include:
+      - "*"
+  branches:
+    include:
+      - feature/*
+  paths:
+    exclude:
+      - README.md
+      - docs/*
+      - scripts/*
+
+pr: none
+
+extends:
+  template: pipelines/build-api/v1.yml@templates
+  parameters:
+    gitVersionSpec: "6.0.x"
+    buildProject: src/**/*.csproj
+    publishProject: src/Spydersoft.AuditApi/Spydersoft.AuditApi.csproj
+    netCoreVersion: "10.0.x"
+    artifactName: auditApi
+    artifactZipName: Spydersoft.AuditApi
+    dockerImageName: spydersoft-consulting/audit-api
+    dockerFilePath: Dockerfile.api
+    containerRegistryName: github-spydersoft-docker
+    imageTagVariableName: audit_api
+    helmfileRepoName: helmfileconfig
+    externalFeedCredentials: SpydersoftGithub
+
+    updateHelmConfig: true
+    buildAndPublishDockerImage: true
+
+    executeTests: true
+    testProjects: "**/*.UnitTests.csproj"
+
+    executeSonar: false
+    useSonarCloud: false

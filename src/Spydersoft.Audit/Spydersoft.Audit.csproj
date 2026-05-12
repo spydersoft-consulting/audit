@@ -1,0 +1,28 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFrameworks>net8.0;net9.0;net10.0</TargetFrameworks>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
+		<PackageDescription>Audit.NET data provider that publishes AuditRecord messages via Spydersoft.Messaging. Consumed by applications that want to emit audit events to the shared Spydersoft audit pipeline.</PackageDescription>
+		<GenerateDocumentationFile>true</GenerateDocumentationFile>
+		<NoWarn>$(NoWarn);1591</NoWarn>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Spydersoft.Messaging" />
+		<PackageReference Include="Audit.NET" />
+		<PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
+		<PackageReference Include="Microsoft.Extensions.Options" />
+		<PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" />
+		<PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<None Include="../../docs/library-readme.md" Pack="true" PackagePath="\README.md" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<InternalsVisibleTo Include="Spydersoft.Audit.UnitTests" />
+	</ItemGroup>
+
+</Project>

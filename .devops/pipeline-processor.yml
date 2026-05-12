@@ -1,0 +1,56 @@
+## Build Pipeline — Spydersoft.AuditProcessor service image
+##
+## Triggers only on feature branches and tags. main pushes and PRs go through
+## pipeline-sonar.yml; this pipeline exists solely to build the worker image,
+## push it to ghcr.io, and bump the audit_processor tag in platform-helm-config.
+
+resources:
+  repositories:
+    - repository: templates
+      type: github
+      endpoint: spydersoft-gh
+      name: spydersoft-consulting/azure-devops-templates
+    - repository: helmfileconfig
+      type: github
+      endpoint: spydersoft-gh
+      name: spydersoft-consulting/platform-helm-config
+
+trigger:
+  tags:
+    include:
+      - "*"
+  branches:
+    include:
+      - feature/*
+  paths:
+    exclude:
+      - README.md
+      - docs/*
+      - scripts/*
+
+pr: none
+
+extends:
+  template: pipelines/build-api/v1.yml@templates
+  parameters:
+    gitVersionSpec: "6.0.x"
+    buildProject: src/**/*.csproj
+    publishProject: src/Spydersoft.AuditProcessor/Spydersoft.AuditProcessor.csproj
+    netCoreVersion: "10.0.x"
+    artifactName: auditProcessor
+    artifactZipName: Spydersoft.AuditProcessor
+    dockerImageName: spydersoft-consulting/audit-processor
+    dockerFilePath: Dockerfile.processor
+    containerRegistryName: github-spydersoft-docker
+    imageTagVariableName: audit_processor
+    helmfileRepoName: helmfileconfig
+    externalFeedCredentials: SpydersoftGithub
+
+    updateHelmConfig: true
+    buildAndPublishDockerImage: true
+
+    executeTests: true
+    testProjects: "**/*.UnitTests.csproj"
+
+    executeSonar: false
+    useSonarCloud: false
