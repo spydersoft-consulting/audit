@@ -1,0 +1,135 @@
+## Build Pipeline - builds the solution, publishes both service images, the
+## combined audit OCI chart, AND the Spydersoft.Audit/Spydersoft.Audit.Client
+## NuGet packages, all from one build number. Replaces the earlier
+## pipeline-api.yml/pipeline-processor.yml/pipeline-sonar.yml/pipeline-main.yml
+## split: everything in this repo shares one release cadence, so one atomic
+## build/publish avoids version-mismatch drift between artifacts and gives a
+## single SonarCloud analysis per build instead of racing/overwriting scans.
+##
+## build-multi-container has no dotnetSdk/additionalNetVersions parameter
+## (unlike build-net-library, which pipeline-main.yml used to install net8/
+## net9 SDKs for these libraries' net8.0;net9.0;net10.0 multi-targeting) --
+## relies on the Default pool agent already having those SDKs installed. If a
+## pack step ever fails for a specific TFM, that's the first thing to check.
+resources:
+  repositories:
+    - repository: templates
+      type: github
+      endpoint: spydersoft-gh
+      name: spydersoft-consulting/azure-devops-templates
+    - repository: helmfileconfig
+      type: github
+      endpoint: spydersoft-gh
+      name: spydersoft-consulting/platform-helm-config
+
+variables:
+  - group: nuget-spydersoft-github
+
+trigger:
+  tags:
+    include:
+      - "*"
+  branches:
+    include:
+      - main
+  paths:
+    exclude:
+      - README.md
+      - docs/*
+      - scripts/*
+
+pr:
+  branches:
+    include:
+      - main
+
+extends:
+  template: pipelines/build-multi-container/v1.yml@templates
+  parameters:
+    gitVersionSpec: "6.0.x"
+    netCoreVersion: "10.0.x"
+    externalFeedCredentials: SpydersoftGithub
+    nugetConfigPath: "$(Build.SourcesDirectory)/nuget.config"
+
+    buildProject: src/Spydersoft.Audit.slnx
+
+    projectsToPack: "**/*.csproj;!**/*.UnitTests.csproj;!**/*.AppHost.csproj;!**/Spydersoft.AuditProcessor.csproj;!**/Spydersoft.AuditApi.csproj;!**/Spydersoft.AuditSeeder.csproj"
+    externalPublishUrl: $(nuget-feed-url)
+    externalPublishApiKey: $(nuget-feed-api-key)
+
+    publishProjects:
+      - name: audit_api
+        project: src/Spydersoft.AuditApi/Spydersoft.AuditApi.csproj
+        artifactName: auditApi
+      - name: audit_processor
+        project: src/Spydersoft.AuditProcessor/Spydersoft.AuditProcessor.csproj
+        artifactName: auditProcessor
+
+    executeTests: true
+    testProjects: "src/**/*.UnitTests/*.csproj"
+
+    sonarProjectKey: spydersoft-consulting_audit
+    sonarProjectName: Spydersoft.Audit
+    useSonarCloud: true
+    sonarCloudOrganization: spydersoft-consulting
+    sonarEndpointName: sonarcloud-spydersoft
+    sonarExtraProperties: |
+      sonar.projectKey=spydersoft-consulting_audit
+      sonar.test.inclusions=**/*.UnitTests/**
+      sonar.coverage.exclusions=**/*.UnitTests/**,**/*.AppHost/**,**/Generated/**
+      sonar.exclusions=**/Generated/**
+      sonar.scanner.scanAll=false
+
+    containerRegistryName: github-spydersoft-docker
+    dockerImages:
+      - name: audit_api
+        dockerImageName: spydersoft-consulting/audit-api
+        dockerFilePath: Dockerfile.api
+        artifactName: auditApi
+        artifactZipName: Spydersoft.AuditApi
+      - name: audit_processor
+        dockerImageName: spydersoft-consulting/audit-processor
+        dockerFilePath: Dockerfile.processor
+        artifactName: auditProcessor
+        artifactZipName: Spydersoft.AuditProcessor
+
+    helmCharts:
+      - name: audit
+        chartPath: charts/audit
+
+    helmfileRepoName: helmfileconfig
+    updateHelmConfigDependsOn:
+      - docker_publish
+      - chart_publish
+
+    # Three build shapes (same convention as pitstop's pipeline-ci.yml):
+    #  - PR: build/test/sonar only, no publish, no helm-config update.
+    #  - main: beta build (GitVersion tags X.Y.Z-beta.<n> per GitVersion.yml's
+    #    `main` branch config) -> publish images+chart+NuGet packages, update
+    #    helm-config's test environment. Still runs sonar since this is a
+    #    real build path.
+    #  - anything else (a tag push): release build (unlabeled X.Y.Z) ->
+    #    publish images+chart+NuGet packages, ALSO update helm-config's test
+    #    environment -- helm-config's own detect_version/deploy.yml decides
+    #    from there whether to auto-promote to stage (gated on the version
+    #    being unlabeled, not on which branch built it). No sonar re-analysis.
+    ${{ if eq(variables['Build.Reason'], 'PullRequest') }}:
+      updateHelmConfig: false
+      buildAndPublishDockerImages: false
+      buildAndPublishHelmCharts: false
+      publishToNuget: false
+      executeSonar: true
+    ${{ elseif eq(variables['Build.SourceBranchName'], 'main') }}:
+      updateHelmConfig: true
+      buildAndPublishDockerImages: true
+      buildAndPublishHelmCharts: true
+      publishToNuget: true
+      executeSonar: true
+    ${{ else }}:
+      updateHelmConfig: true
+      buildAndPublishDockerImages: true
+      buildAndPublishHelmCharts: true
+      publishToNuget: true
+      executeSonar: false
+
+    helmTagsCollection: "audit_api=$(build.buildnumber),audit_processor=$(build.buildnumber),chart_version=$(build.buildnumber)"
