@@ -11,6 +11,9 @@
 ## net9 SDKs for these libraries' net8.0;net9.0;net10.0 multi-targeting) --
 ## relies on the Default pool agent already having those SDKs installed. If a
 ## pack step ever fails for a specific TFM, that's the first thing to check.
+##
+## (Validation commit: confirms platform-helm-config's process-cicd.ps1 fix
+## correctly targets environments/test/images.yaml on a real beta build.)
 resources:
   repositories:
     - repository: templates
