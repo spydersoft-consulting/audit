@@ -148,4 +148,8 @@ extends:
       publishToNuget: true
       executeSonar: false
 
-    helmTagsCollection: "audit_api=$(build.buildnumber),audit_processor=$(build.buildnumber),chart_version=$(build.buildnumber)"
+    # audit_chart_version, not the generic chart_version -- platform-helm-config
+    # hosts multiple independently-versioned OCI-chart apps sharing one flat
+    # imageTags map per environment, so each app needs its own key to avoid
+    # one app's publish overwriting another's chart-version pin.
+    helmTagsCollection: "audit_api=$(build.buildnumber),audit_processor=$(build.buildnumber),audit_chart_version=$(build.buildnumber)"
