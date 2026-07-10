@@ -8,12 +8,13 @@
 ##
 ## build-multi-container has no dotnetSdk/additionalNetVersions parameter
 ## (unlike build-net-library, which pipeline-main.yml used to install net8/
-## net9 SDKs for these libraries' net8.0;net9.0;net10.0 multi-targeting) --
-## relies on the Default pool agent already having those SDKs installed. If a
-## pack step ever fails for a specific TFM, that's the first thing to check.
-##
-## (Validation commit: confirms platform-helm-config's process-cicd.ps1 fix
-## correctly targets environments/test/images.yaml on a real beta build.)
+## net9 SDKs for these libraries' net8.0;net9.0;net10.0 multi-targeting), so
+## prebuildSteps below installs them explicitly via UseDotNet@2 -- confirmed
+## via a real release build (1.0.0 tag, build 6185) that this isn't optional:
+## the two-agent Default pool doesn't have a consistent SDK set installed
+## across agents, so net8.0 unit tests failed with "You must install or
+## update .NET to run this application." on whichever agent happened to lack
+## that runtime. Don't rely on agent-level global installs for this.
 resources:
   repositories:
     - repository: templates
@@ -55,6 +56,18 @@ extends:
     nugetConfigPath: "$(Build.SourcesDirectory)/nuget.config"
 
     buildProject: src/Spydersoft.Audit.slnx
+
+    prebuildSteps:
+      - task: UseDotNet@2
+        displayName: Install .NET 8 SDK (net8.0 multi-targeted tests/pack)
+        inputs:
+          packageType: sdk
+          version: 8.0.x
+      - task: UseDotNet@2
+        displayName: Install .NET 9 SDK (net9.0 multi-targeted tests/pack)
+        inputs:
+          packageType: sdk
+          version: 9.0.x
 
     projectsToPack: "**/*.csproj;!**/*.UnitTests.csproj;!**/*.AppHost.csproj;!**/Spydersoft.AuditProcessor.csproj;!**/Spydersoft.AuditApi.csproj;!**/Spydersoft.AuditSeeder.csproj"
     externalPublishUrl: $(nuget-feed-url)
