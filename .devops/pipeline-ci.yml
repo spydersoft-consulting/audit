@@ -50,6 +50,7 @@ pr:
 extends:
   template: pipelines/build-multi-container/v1.yml@templates
   parameters:
+    vmImage: ubuntu-latest
     gitVersionSpec: "6.0.x"
     netCoreVersion: "10.0.x"
     externalFeedCredentials: SpydersoftGithub
