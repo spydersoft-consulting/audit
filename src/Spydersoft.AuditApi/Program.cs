@@ -7,6 +7,7 @@ using Spydersoft.AuditApi.Infrastructure;
 using Spydersoft.AuditApi.Services;
 using Spydersoft.AuditApi.Storage;
 using Spydersoft.Platform.Hosting.StartupExtensions;
+using Spydersoft.Platform.Hosting.Telemetry;
 
 // Special mode: write the OpenAPI document to disk and exit. Driven by
 // scripts/regen-openapi.ps1 to refresh the committed snapshot.
@@ -17,7 +18,12 @@ if (args.Length >= 2 && args[0] == "--export-openapi")
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.AddSpydersoftTelemetry(typeof(Program).Assembly)
+builder.AddSpydersoftTelemetry(typeof(Program).Assembly,
+    new ConfigurationFunctions
+    {
+        // Kubernetes probes hit these every few seconds; they add nothing but noise to traces.
+        AspNetFilterFunction = context => !IsHealthCheckPath(context.Request.Path.Value)
+    })
        .AddSpydersoftSerilog();
 
 var healthCheckOptions = builder.AddSpydersoftHealthChecks();
@@ -102,6 +108,7 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi();
 }
 
+app.UseSpydersoftRequestLogging();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
@@ -109,6 +116,10 @@ app.UseSpydersoftHealthChecks(healthCheckOptions);
 
 await app.RunAsync();
 return 0;
+
+static bool IsHealthCheckPath(string? path) =>
+    string.Equals(path, "/livez", StringComparison.OrdinalIgnoreCase) ||
+    string.Equals(path, "/readyz", StringComparison.OrdinalIgnoreCase);
 
 // Make Program visible to the integration-test fixture.
 public partial class Program { }
