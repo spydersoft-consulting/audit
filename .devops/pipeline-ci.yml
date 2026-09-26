@@ -84,6 +84,11 @@ extends:
 
     executeTests: true
     testProjects: "src/**/*.UnitTests/*.csproj"
+    # Test projects run on Microsoft.Testing.Platform (see Directory.Build.props/
+    # Directory.Build.targets in src/) -- VSTest-mode `dotnet test` for an MTP app is a
+    # hard error on .NET 10 SDK with Microsoft.Testing.Platform.MSBuild 2.x, so this repo
+    # can't use the default 'vstest' testRunner.
+    testRunner: mtp
 
     sonarProjectKey: spydersoft-consulting_audit
     sonarProjectName: Spydersoft.Audit
