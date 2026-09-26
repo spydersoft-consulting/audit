@@ -21,6 +21,7 @@ resources:
       type: github
       endpoint: spydersoft-gh
       name: spydersoft-consulting/azure-devops-templates
+      ref: refs/heads/main
     - repository: helmfileconfig
       type: github
       endpoint: spydersoft-gh
