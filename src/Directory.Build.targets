@@ -6,5 +6,11 @@
 	<ItemGroup Condition="'$(IsTestProject)' == 'true'">
 		<PackageReference Include="Microsoft.Testing.Extensions.CodeCoverage" />
 		<PackageReference Include="Microsoft.Testing.Extensions.TrxReport" />
+
+		<!-- MTP auto-discovers "$(AssemblyName).testconfig.json" next to the built assembly
+		     (replaces the old coverlet.runsettings — excludes test assemblies and
+		     Obsolete/GeneratedCode/CompilerGenerated-attributed code from coverage). One
+		     shared source file, renamed per project via Link. -->
+		<None Include="$(MSBuildThisFileDirectory)testconfig.json" Link="$(AssemblyName).testconfig.json" CopyToOutputDirectory="PreserveNewest" Visible="false" />
 	</ItemGroup>
 </Project>
