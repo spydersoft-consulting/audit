@@ -10,5 +10,29 @@
 		<Company>Spydersoft Consulting</Company>
 		<RepositoryUrl>https://github.com/spydersoft-consulting/audit</RepositoryUrl>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
+
+		<!-- Run NUnit test projects on Microsoft.Testing.Platform instead of the legacy
+		     VSTest host. NUnit3TestAdapter.targets copies EnableNUnitRunner into
+		     IsTestingPlatformApplication at import time (not a live binding), and that
+		     import happens before Directory.Build.targets — so this has to be set here,
+		     in Directory.Build.props, to take effect. It's a no-op on non-test projects
+		     (they don't reference NUnit3TestAdapter, so its targets never read it).
+
+		     `dotnet test` opts into MTP mode via global.json (test.runner) — the .NET 10
+		     SDK's new dotnet-test experience. The older VSTestBridge coexistence mode
+		     (TestingPlatformDotnetTestSupport) is a hard error on .NET 10 SDK with
+		     Microsoft.Testing.Platform.MSBuild 2.x ("no longer supported... on .NET 10
+		     SDK and later"), so it isn't a fallback option here.
+
+		     Note: on this Windows dev machine, `dotnet test` (new mode) reproducibly
+		     returns "Zero tests ran" / exit 5 with no diagnostic output, even against a
+		     from-scratch `dotnet new nunit` project — isolated as an environment/SDK
+		     issue (likely IPC/named-pipe related), not something specific to this repo's
+		     config. Running the built test assembly directly (`dotnet
+		     path/to/*.UnitTests.dll`) works correctly and is confirmed to execute via
+		     MTP. CI runs on ubuntu-latest, a different OS, so verify `dotnet test` there
+		     before assuming it's broken; if it also fails, switch CI to invoke the built
+		     test DLLs directly instead. -->
+		<EnableNUnitRunner>true</EnableNUnitRunner>
 	</PropertyGroup>
 </Project>
